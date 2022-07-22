@@ -1,10 +1,12 @@
 module main
 
 import vweb
+import os
+import os.cmdline {option}
 
-const (
-	port = 8082
-)
+// const (
+	// port = 8082
+// )
 
 struct App {
 	vweb.Context
@@ -18,6 +20,7 @@ mut:
 }
 
 fn main() {
+	port := option(os.args,'--port','').int()
 	println('vweb prime')
 	vweb.run(&App{}, port)
 }
