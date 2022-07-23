@@ -1,0 +1,1 @@
+https://github.com/hanabi1224/vlang-big-integer.git hanabi1224 biginteger
