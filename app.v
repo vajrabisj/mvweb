@@ -20,13 +20,14 @@ mut:
 	cnt int
 }
 
+[live]
 fn main() {
 	port := option(os.args,'--port','').int()
 	println('vweb prime')
 	vweb.run(&App{}, port)
 }
 
-fn prime_or_not(p string) ?bool {
+fn sprime_or_not(p string) ?bool {
 	mut n := biginteger.from_str(p)?
 	mut i := biginteger.from_int(0)
 	mut flag := 0
@@ -49,10 +50,26 @@ fn prime_or_not(p string) ?bool {
 	}
 }
 
+fn iprime_or_not(n int) bool {
+	mut i := 0
+	mut flag := 0
+	for i = 2; i <= n / 2; i++ {
+		if n % i == 0 {
+			flag = 1
+			break
+		}
+	}
+	if flag == 0 {
+		return true
+	} else { // 3
+		return false
+	}
+}
+
 ['/prime/check']
 pub fn (mut app App) checkprime() vweb.Result {
 	p := app.Context.query['q']
-	if ret := prime_or_not(p){
+	if ret := sprime_or_not(p){
 		if ret {
 			return app.text('$ret: $p is a prime number')
 		}else{
@@ -61,6 +78,18 @@ pub fn (mut app App) checkprime() vweb.Result {
 	}else{
 		println(err)
 	}
+}
+
+['/prime/list']
+pub fn (mut app App) listprime() vweb.Result{
+	p := app.Context.query['q'].int()
+	mut pl := []int{}
+	for i in 3 .. p{
+		if iprime_or_not(i){
+			pl << i
+		}
+	}
+	return app.text('prime list is: $pl')
 }
 
 pub fn (mut app App) index() vweb.Result {
