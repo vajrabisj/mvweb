@@ -3,6 +3,7 @@ module main
 import vweb
 import os
 import os.cmdline {option}
+import hanabi1224.biginteger
 
 // const (
 	// port = 8082
@@ -25,14 +26,18 @@ fn main() {
 	vweb.run(&App{}, port)
 }
 
-fn prime_or_not(n u64) bool {
-	mut i := u64(0)
+fn prime_or_not(p string) ?bool {
+	mut n := biginteger.from_str(p)?
+	mut i := biginteger.from_int(0)
 	mut flag := 0
-	if n == 0 || n == 1 || n ==2 {
+	z := biginteger.zero
+	o := biginteger.one
+	t := biginteger.two
+	if n == z || n == o || n == t {
 		flag = 1
 	}
-	for i = 2; i <= n / 2; i++ {
-		if n % i == 0 {
+	for i = t; i <= n / t; i=i+o {
+		if n % i == z {
 			flag = 1
 			break
 		}
@@ -46,11 +51,15 @@ fn prime_or_not(n u64) bool {
 
 ['/prime/check']
 pub fn (mut app App) checkprime() vweb.Result {
-	p := app.Context.query['q'].int()
-	if prime_or_not(u64(p)){
-		return app.text('$p is a prime number')
+	p := app.Context.query['q']
+	if ret := prime_or_not(p){
+		if ret {
+			return app.text('$ret: $p is a prime number')
+		}else{
+			return app.text('$ret: $p is not a prime number')
+		}
 	}else{
-		return app.text('$p is not a prime number')
+		println(err)
 	}
 }
 
