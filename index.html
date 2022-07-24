@@ -1,5 +1,17 @@
 <h1>Home</h1>
 <hr>
-@hello
+@primecheck<br>
+Or submit to check as following:<br>
+<form action="/prime/check" method="post">
+    <input type="text" name="primen">
+    <input type="submit" value="submit">
+</form>
+@primelist<br>
+Or submit to list as following:<br>
+<form action="/prime/list" method="post">
+    <input type="text" name="primel">
+    <input type="submit" value="submit">
+</form>
+Go to <a href="/rand/gen">random generator</a> to get random generated number
 <hr>
 End.

@@ -1,9 +1,9 @@
-module main
 
 import vweb
 import os
 import os.cmdline {option}
 import hanabi1224.biginteger
+import rand
 
 // const (
 	// port = 8082
@@ -66,9 +66,9 @@ fn iprime_or_not(n int) bool {
 	}
 }
 
-['/prime/check']
-pub fn (mut app App) checkprime() vweb.Result {
-	p := app.Context.query['q']
+['/prime/check'; get]
+pub fn (mut app App) gcheckprime() vweb.Result {
+	p := app.query['q']
 	if ret := sprime_or_not(p){
 		if ret {
 			return app.text('$ret: $p is a prime number')
@@ -80,9 +80,23 @@ pub fn (mut app App) checkprime() vweb.Result {
 	}
 }
 
-['/prime/list']
-pub fn (mut app App) listprime() vweb.Result{
-	p := app.Context.query['q'].int()
+['/prime/check'; post]
+pub fn (mut app App) pcheckprime() vweb.Result {
+	p := app.form['primen']
+	if ret := sprime_or_not(p){
+		if ret {
+			return app.text('$ret: $p is a prime number')
+		}else{
+			return app.text('$ret: $p is not a prime number')
+		}
+	}else{
+		println(err)
+	}
+}
+
+['/prime/list'; get]
+pub fn (mut app App) glistprime() vweb.Result{
+	p := app.query['q'].int()
 	mut pl := []int{}
 	for i in 3 .. p{
 		if iprime_or_not(i){
@@ -92,8 +106,30 @@ pub fn (mut app App) listprime() vweb.Result{
 	return app.text('prime list is: $pl')
 }
 
+['/prime/list'; post]
+pub fn (mut app App) plistprime() vweb.Result{
+	p := app.form['primel'].int()
+	mut pl := []int{}
+	for i in 3 .. p{
+		if iprime_or_not(i){
+			pl << i
+		}
+	}
+	return app.text('prime list is: $pl')
+}
+
+['/rand/gen']
+pub fn (mut app App) genrand() vweb.Result{
+	rndg := typeof(rand.get_current_rng()).name
+	rndn := rand.int31()
+	rndstr := 'using $rndg generated: $rndn'
+	rndl := '/prime/check?q=' + rndn.str()
+	return $vweb.html()
+}
+
 pub fn (mut app App) index() vweb.Result {
-	hello := 'pls query /prime/check to check whether number queried is prime'
+	primecheck := 'Get /prime/check?q=[number to check] to check whether number queried is prime'
+	primelist := 'Get /prime/list?q=[range] to list prime numbers within range'
 	return $vweb.html()
 }
 
