@@ -137,7 +137,7 @@ pub fn (mut app App) index() vweb.Result {
 	return $vweb.html()
 }
 
-__global jstr []string
+//__global jstr []string
 
 pub fn (mut app App) getcoord(ll string) ?string {
 	mut jl := log.Log{}
