@@ -248,6 +248,13 @@ fn (mut app App) grand() ?vweb.Result{
 	}
 }
 
+['/gua/list'; get]
+fn (mut app App) glist() vweb.Result{
+	mut g := Gua{}
+	ret := g.cheng_gua()
+	return $vweb.html()
+}
+
 fn (mut gua Gua) cheng_gua() map[int]Gua{
 	mut guax := []rune{}
 	for u in `\u4dc0` .. `\u4dff`{
