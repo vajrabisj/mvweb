@@ -7,7 +7,7 @@ import net.http
 import x.json2
 import arrays
 import log
-
+import net.ftp
 
 // const (
 	// port = 8082
@@ -24,10 +24,18 @@ mut:
 	cnt int
 }
 
+pub fn connectftp() ?[]string{
+	mut ccftp := ftp.new()
+	ftpconn := ccftp.connect('bucket-73974d41-b08d-436d-bedd-b52d53e85c44-fsbucket.services.clever-cloud.com')?
+	ftplogin := ccftp.login('u73974d41b08','EKQkKdeEDugZ2QjU')?
+	f := ccftp.get('coords.txt')?
+	fstrl := f.bytestr().split_into_lines()
+	return fstrl
+}
+
 [live]
 fn main() {
 	port := option(os.args,'--port','').int()
-	println('vweb prime')
 	vweb.run(&App{}, port)
 }
 
@@ -184,15 +192,16 @@ type Jstrm = map[string]Jstr
 pub fn (mut app App) checkcoord() ?vweb.Result{
 	mut jl := log.Log{}
 	jl.set_level(.info)
-	mut jstr := []string{}
+	//mut jstr := []string{}
 	mut jstrm := map[string]Jstr{}
 	mut jstrl := []Jstrm{}
 	ll := app.query['q']
 	jl.info('location queried is: $ll')
-	if os.exists('${@VMODROOT}/coords.txt'){
+	/*if os.exists('${@VMODROOT}/coords.txt'){
 		jl.info('file existed')
 		jstr = os.read_lines('${@VMODROOT}/coords.txt') or {panic(err)}
-		jl.info('file contents:\n')
+		jl.info('file contents:\n')*/
+	if mut jstr := connectftp(){
 		for e in jstr{
 			jl.info('element in jstr is: $e')
 			if e.split(',')[2]==ll {
@@ -203,19 +212,20 @@ pub fn (mut app App) checkcoord() ?vweb.Result{
 		}
 		if ret := app.getcoord(ll){
 			jl.info('not found, so coords returned is: $ret')
-			if mut oaf := os.open_append('${@VMODROOT}/coords.txt'){
+			/*if mut oaf := os.open_append('${@VMODROOT}/coords.txt'){
 				jl.info('open file to append')
 				oaf.writeln(ret) or {panic(err)}
 				jl.info('write $ret to file')
 			}else{
 				panic(err)
-			}
+			}*/
 			return app.text(ret)
 		}else{
 			panic(err)
 		}
 	}else{
-		jl.info('file not existed')
+		panic(err)
+		/*jl.info('file not existed')
 		if ret := app.getcoord(ll){
 			jl.info('returned is: $ret')
 			if mut jf := os.create('${@VMODROOT}/coords.txt'){
@@ -226,7 +236,7 @@ pub fn (mut app App) checkcoord() ?vweb.Result{
 			return app.text(ret)
 		}else{
 			panic(err)
-		}
+		}*/
 	}
 }
 
