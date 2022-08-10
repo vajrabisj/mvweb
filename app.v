@@ -8,6 +8,7 @@ import x.json2
 import arrays
 import log
 import net.ftp
+import io.util
 
 // const (
 	// port = 8082
@@ -219,6 +220,22 @@ pub fn (mut app App) checkcoord() ?vweb.Result{
 			}else{
 				panic(err)
 			}*/
+			mut tfo := util.TempFileOptions{}
+			mut ln := ''
+			if mut tf,tfp := util.temp_file(tfo){
+				jl.info('temp file is: $tf')
+				jl.info('temp file path is: $tfp')
+				os.write_file(tfp,'$ret\n')?
+				jl.info('string $ret is written into temp file')
+				ln = os.read_file(tfp)?
+				jl.info('temp file content $ln read')
+				mut cres := os.execute('curl --append --upload $tfp -u "u73974d41b08:EKQkKdeEDugZ2QjU" ftp://bucket-73974d41-b08d-436d-bedd-b52d53e85c44-fsbucket.services.clever-cloud.com/coords.txt')
+				jl.info(cres.output)
+				cres = os.execute('curl -u "u73974d41b08:EKQkKdeEDugZ2QjU" ftp://bucket-73974d41-b08d-436d-bedd-b52d53e85c44-fsbucket.services.clever-cloud.com/coords.txt')
+				jl.info(cres.output)
+			}else{
+				panic(err)
+			}
 			return app.text(ret)
 		}else{
 			panic(err)
