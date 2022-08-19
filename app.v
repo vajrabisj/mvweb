@@ -262,6 +262,36 @@ struct Gua{
 		gxiang rune
 }
 
+fn guaci(n int) ?[]string {
+	mut contents := []string{}
+	mut ccftp := ftp.new()
+	ftpconn := ccftp.connect('bucket-73974d41-b08d-436d-bedd-b52d53e85c44-fsbucket.services.clever-cloud.com')?
+	ftplogin := ccftp.login('u73974d41b08','EKQkKdeEDugZ2QjU')?
+	f := ccftp.get('${n}.json')?
+	jf := f.bytestr()
+	jstr := json2.raw_decode(jf)?
+	children := jstr.as_map()['children'].arr()
+	println('there are ${children.len} items in children array')
+	for i,e in children{
+		//println('No.$i')
+		//println('lines content:')
+		emapls := e.as_map()['lines'].arr()
+		emaplschild := 'children' in emapls
+		for ee in emapls{
+			contents << ee.as_map()['value'].str()
+			println(contents)
+			if emaplschild{
+				for eee in ee.as_map()['children'].arr(){
+					for eeee in eee.as_map()['lines'].arr(){
+						contents << eeee.as_map()['value'].str()
+					}
+				}
+			}
+		}
+	}
+	return contents
+}
+
 ['/gua/grand'; get]
 fn (mut app App) grand() ?vweb.Result{
 	mut g := Gua{}
@@ -269,6 +299,7 @@ fn (mut app App) grand() ?vweb.Result{
 	if rn := rand.intn(64){
 		rnstr := 'random number $rn generated.'
 		gstr := '第${rn+1}卦：${ret[rn].gxiang} -> ${ret[rn].gname}'
+		gc := guaci(rn+1)?
 		return $vweb.html()
 	}else{
 		panic(err)
@@ -284,10 +315,10 @@ fn (mut app App) glist() vweb.Result{
 
 fn (mut gua Gua) cheng_gua() map[int]Gua{
 	mut guax := []rune{}
-	for u in `\u4dc0` .. `\u4dff`{
+	for u in `\u4dc0` .. `\u4e00`{
 		guax << u
 	}
-	guax << `\u4dff`
+	//guax << `\u4dff`
 	println('length of guax is ${guax.len}')
 	guam := ['乾为天','坤为地','水雷屯','山水蒙','水天需','天水讼','地水师','水地比','风天小畜','天泽履','地天泰','天地否','天火同人','火天大有','地山谦','雷地豫','泽雷随','山风蛊','地泽临','风地观','火雷噬嗑','山火贲','山地剥','地雷复','天雷无妄','山天大畜','山雷颐','泽风大过','坎为水','离为火','泽山咸','雷风恒','天山遁','雷天大壮','火地晋','地火明夷','风火家人','火泽睽','水山蹇','雷水解','山泽损','风雷益','泽天夬','天风姤','泽地萃','地风升','泽水困','水风井','泽火革','火风鼎','震为雷','艮为山','风山渐','雷泽归妹','雷火丰','火山旅','巽为风','兑为泽','风水涣','水泽节','风泽中孚','雷山小过','水火既济','火水未济']
 	println('length of guam is ${guam.len}')
@@ -297,19 +328,6 @@ fn (mut gua Gua) cheng_gua() map[int]Gua{
 		guamp[i]=Gua{guam[i],guax[i]}
 		//println('第${i+1}卦：${guamp[i+1].gxiang} -> ${guamp[i+1].gname}')
 	}
+	println(guamp)
 	return guamp
 }
-
-/*
-			for k, v in results{
-				match k{
-					'geometry'{
-						llr << v
-					}
-					else{
-						continue
-					}
-				}
-			}
-		}
-	} else {println('$err')}*/
